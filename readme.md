@@ -6,14 +6,15 @@ returned to the user.
 Currently the library is linux-only because of the automatic reloading and
 server implementation.
 
-# Disclamer
+# Disclaimer
 The library is in development and it (as well as the API) will probably change
 before 1.0.
 
 # Getting started
-An example project which uses SDL and OpenGL is included.
+An example project which uses SDL and OpenGL is included. The extensions are
+pretty well-commented, and most of the code is easily readable.
 
-More in-depth information is available in the wiki.
+Some quick examples can be found in the wiki.
 
 ## Dependencies
 Currently the only mandatory dependencies not included in the repo are lua 5.1
