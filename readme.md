@@ -48,7 +48,7 @@ created by combining simple building blocks.
 menu might require a scrollbar, which is automatically created.
 ## Real-time capable
 The GUI should run with a minimal performance impact. Rendering a given UI
-should take a most a handful of milliseconds.
+should take at most a handful of milliseconds.
 
 Parsing and building the GUI should not take so long that it is a bother
 (subjective).
@@ -57,5 +57,60 @@ The dependencies should be kept to a minimum. If a dependency is introduced it
 will either be a well-known and widely used (meaning you probably already have
 it or trust it), or it will be included.
 
+# Roadmap
+## 1.0
+1.0 is when all of the following features are implemented and stable:
+### Widgets
+* ~~Text~~
+* ~~Button~~
+* ~~Checkbox~~
+* ~~Color~~
+* ~~Dropdown~~
+* ~~Slider~~
+* Scrollbar
+* Color picker
+* Single-line text input
+* Texture
+### Layouts
+* ~~Linear~~
+* ~~Scroll~~
+* ~~Floating~~
+* Resizable linear
+* Floating window
+* Tree
+* Accordion/Collapse
+* Outline
+* Menu bar
+### General features
+* Cross-platform GUI server implementation
+* Cross-platform file reloading
+* Cross-platform extension registration
+* Some non-intrusive way to build extensions into the main binary instead
+* CPU text clipping (when generating text)
+* Better font support (different fonts and sizes)
+* Texture support
+* Better, uniform, style
+* Right-click context menus
+* Dockable windows
+* Tabs
+
+## Additional features
+These are features that are currently undecided. Either due to them not being
+important enough, or due to implementation difficulties
+* On-demand parsing and building
+  
+  Parsing the entire UI at once will be slow and unnecessary. Instead, it would
+  be nice to parse only the parts of the UI that are needed to display it, and
+  then parse e.g. elements in a dropdown only once the dropdown has been shown.
+  Performance needs to be kept in mind, and a per-object "preload" flag should
+  probably be implemented to avoid lag spikes.
+
+* Data bindings
+  
+  I would like to avoid naming widgets and interacting with them by searching
+  for them. Message-passing is fine for when a button is pressed and so on, but
+  a widget might need to source its data from outside the lua context. A simple,
+  non-cumbersome way of getting data into and out of the widget is necessary.
+
 # License
-MIT
+LUI is licensed under the MIT licence. LICENSE.txt has more information.

@@ -131,7 +131,7 @@ namespace GUI
     static std::vector<Vertex> vertices;
     static std::vector<uint32_t> indicies;
 
-    static std::stack<int> defaultsStack; // TODO: Replace with lua index
+    static std::stack<int> defaultsStack;
 
     // These are indicies into the widgets list.
     // A popup has its own hoveredWidget and downWidget; these are only used
