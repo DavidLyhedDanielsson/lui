@@ -132,6 +132,7 @@ namespace GUI
     typedef void (*MeasureTextCallback)(const char*, int32_t*, int32_t*);
     typedef void (*StealMouseCallback)(Element* element);
     typedef void (*FreeMouseCallback)(Element* element);
+    typedef Element* (*GetNamedElementCallback)(const char*);
 
     struct InitFunctions
     {
@@ -154,6 +155,7 @@ namespace GUI
         MeasureTextCallback measureText;
         StealMouseCallback stealMouse;
         FreeMouseCallback freeMouse;
+        GetNamedElementCallback getNamedElement;
     };
 }
 

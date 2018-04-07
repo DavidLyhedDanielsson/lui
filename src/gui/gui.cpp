@@ -133,13 +133,13 @@ namespace GUI
 
     static std::stack<int> defaultsStack;
 
+    std::map<std::string, Element*> namedElements;
+
     // These are indicies into the widgets list.
     // A popup has its own hoveredWidget and downWidget; these are only used
     // for widgets outside of popups
     static int32_t hoveredWidget = -1;
     static int32_t downWidget = -1;
-
-    int ParseLayout(lua_State* state, Widget* widgets, const Rect* bounds);
 
     Rect UnpackClipRect(uint64_t clipRect) {
         return { (float)(clipRect & 0xFFFF)
@@ -499,6 +499,15 @@ namespace GUI
             mouseOwnElement = nullptr;
     }
 
+    Element* GetNamedElement(const char* name)
+    {
+        auto iter = namedElements.find(name);
+        if(iter != namedElements.end())
+            return iter->second;
+
+        return nullptr;
+    }
+
     void BuildLayouts(Element*);
 
     // This struct is sent to all widgets when init is called
@@ -522,6 +531,7 @@ namespace GUI
         , MeasureText
         , StealMouse
         , FreeMouse
+        , GetNamedElement
     };
 
     // These are needed to keep track of if a popup is opened while the mouse is held,
@@ -625,6 +635,7 @@ namespace GUI
         widgets.resize(0);
         typeInferInfo.resize(0);
         popups.resize(0);
+        namedElements.clear();
         while(!defaultsStack.empty()) {
             if(defaultsStack.top() != -1) // I don't think -1 is a valid ref index?
                 luaL_unref(state, LUA_REGISTRYINDEX, defaultsStack.top());
@@ -748,10 +759,18 @@ namespace GUI
         if(!defaultsStack.empty())
             defaults = defaultsStack.top();
 
+        std::string name;
+        if(FieldExists(state, "name")) {
+            name = lua_tostring(state, -1);
+            lua_pop(state, 1);
+        }
+        Element* element = nullptr;
+
         int returnValue = 0;
         bool pop = false;
         if(extensions[extensionIndex].parseLayoutFunction) {
             Layout* newLayout = new Layout();
+            element = newLayout;
             newLayout->extension = extensionIndex;
             newLayout->data = nullptr;
             newLayout->parent = nullptr;
@@ -770,6 +789,7 @@ namespace GUI
             if(pop)
                 layoutsStack.pop_back();
         } else {
+            element = elements;
             elements->draw = true;
             elements->update = false;
             elements->modified = false;
@@ -794,6 +814,15 @@ namespace GUI
             layoutsStack.pop_back();
 
             layoutsStack.back()->children.push_back(elements);
+        }
+
+        if(!name.empty()) {
+            auto iter = namedElements.find(name);
+            if(iter == namedElements.end()) {
+                namedElements[name] = element;
+            } else {
+                std::cerr << "Multiple elements named " << name << std::endl;
+            }
         }
 
         if(pushedDefaults) {
