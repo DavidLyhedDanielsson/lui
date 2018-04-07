@@ -53,11 +53,11 @@ namespace GUI
     typedef bool (*OnChildReleasedFunction)(Element*, lua_State*, Widget*, int32_t, int32_t);
     typedef bool (*OnChildUpdateFunction)(Element*, lua_State*, Widget*, int32_t, int32_t);
     // Queries
-    typedef bool (*QueryNumberFunction)(Widget* widget, const char* key, float* value);
-    typedef int (*QueryStringFunction)(Widget* widget, const char* key, char* value, int32_t);
+    typedef bool (*QueryNumberFunction)(Element* widget, const char* key, float* value);
+    typedef int (*QueryStringFunction)(Element* widget, const char* key, char* value, int32_t);
     // Setters
-    typedef bool (*SetNumberFunction)(Widget* widget, const char* key, float value);
-    typedef bool (*SetStringFunction)(Widget* widget, const char* key, const char* value);
+    typedef bool (*SetNumberFunction)(Element* widget, const char* key, float value);
+    typedef bool (*SetStringFunction)(Element* widget, const char* key, const char* value);
 
     struct Extension
     {
@@ -308,34 +308,34 @@ namespace GUI
         SetClipRect(element, packedClipRect);
     }
 
-    bool QueryNumber(Widget* widget, const char* key, float* value)
+    bool QueryNumber(Element* element, const char* key, float* value)
     {
-        if(extensions[widget->extension].queryNumberFunction)
-            return extensions[widget->extension].queryNumberFunction(widget, key, value);
+        if(extensions[element->extension].queryNumberFunction)
+            return extensions[element->extension].queryNumberFunction(element, key, value);
         
         return false;
     }
 
-    int QueryString(Widget* widget, const char* key, char* value, int32_t maxLength)
+    int QueryString(Element* element, const char* key, char* value, int32_t maxLength)
     {
-        if(extensions[widget->extension].queryStringFunction)
-            return extensions[widget->extension].queryStringFunction(widget, key, value, maxLength);
+        if(extensions[element->extension].queryStringFunction)
+            return extensions[element->extension].queryStringFunction(element, key, value, maxLength);
         
         return -1;
     }
 
-    bool SetNumber(Widget* widget, const char* key, float value)
+    bool SetNumber(Element* element, const char* key, float value)
     {
-        if(extensions[widget->extension].setNumberFunction)
-            return extensions[widget->extension].setNumberFunction(widget, key, value);
+        if(extensions[element->extension].setNumberFunction)
+            return extensions[element->extension].setNumberFunction(element, key, value);
         
         return false;
     }
 
-    bool SetString(Widget* widget, const char* key, const char* value)
+    bool SetString(Element* element, const char* key, const char* value)
     {
-        if(extensions[widget->extension].setStringFunction)
-            return extensions[widget->extension].setStringFunction(widget, key, value);
+        if(extensions[element->extension].setStringFunction)
+            return extensions[element->extension].setStringFunction(element, key, value);
         
         return false;
     }

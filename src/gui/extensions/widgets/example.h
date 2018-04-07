@@ -97,11 +97,11 @@ extern "C"
     
     // Queries data from the widget.
     // Returns true if query was successful
-    bool QueryNumber(Widget* widget widget, const char* key, float* value);
+    bool QueryNumber(Widget* widget, const char* key, float* value);
     // Returns the number of characters written to value
-    int QueryString(Widget* widget widget, const char* key, char* value, int32_t maxLength);
+    int QueryString(Widget* widget, const char* key, char* value, int32_t maxLength);
     // Setters
-    bool SetNumber(Widget* widget widget, const char* key, float value);
-    bool SetString(Widget* widget widget, const char* key, const char* value);
+    bool SetNumber(Widget* widget, const char* key, float value);
+    bool SetString(Widget* widget, const char* key, const char* value);
 
 }

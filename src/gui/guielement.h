@@ -123,10 +123,10 @@ namespace GUI
     typedef void (*OpenPopupCallback)(GUI::Element**, int32_t, CLOSE_ON);
     typedef void (*ClosePopupCallback)(lua_State* state);
     typedef void (*SetDrawCallback)(GUI::Element*, bool, int32_t);
-    typedef bool (*QueryNumberCallback)(GUI::Widget*, const char*, float*);
-    typedef int (*QueryStringCallback)(GUI::Widget*, const char*, char*, int32_t);
-    typedef bool (*SetNumberCallback)(GUI::Widget*, const char*, float);
-    typedef bool (*SetStringCallback)(GUI::Widget*, const char*, const char*);
+    typedef bool (*QueryNumberCallback)(GUI::Element*, const char*, float*);
+    typedef int (*QueryStringCallback)(GUI::Element*, const char*, char*, int32_t);
+    typedef bool (*SetNumberCallback)(GUI::Element*, const char*, float);
+    typedef bool (*SetStringCallback)(GUI::Element*, const char*, const char*);
     typedef void (*SetClipRectCallback)(GUI::Element*, GUI::Rect clipRect);
     typedef void (*CreateTextCallback)(GUI::Widget*, const char*, uint8_t, uint8_t, uint8_t, uint8_t);
     typedef void (*MeasureTextCallback)(const char*, int32_t*, int32_t*);
