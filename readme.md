@@ -3,6 +3,10 @@ LUI is a declarative GUI library which uses lua to define the GUI. A  C++
 backend is used to update the GUI and create draw lists which are then
 returned to the user.
 
+For 1.0, the primary focus will be on creating menus such as main menus, and
+options menus. If performance permits, and good data bindings can be created,
+it will later be expanded to be used for debug/editor tools as well.
+
 Currently the library is linux-only because of the automatic reloading and
 server implementation.
 
@@ -18,7 +22,7 @@ Some quick examples can be found in the wiki.
 
 ## Dependencies
 Currently the only mandatory dependencies not included in the repo are lua 5.1
-and freetype2. SDL2 is required to build the supplied makefile as it includes
+and freetype2. SDL2 is required to build the supplied CMakeLists as it includes
 a simple example application.
 
 ## Building
@@ -69,19 +73,14 @@ it or trust it), or it will be included.
 * ~~Dropdown~~
 * ~~Slider~~
 * Scrollbar
-* Color picker
 * Single-line text input
 * Texture
 ### Layouts
 * ~~Linear~~
 * ~~Scroll~~
 * ~~Floating~~
-* Resizable linear
-* Floating window
-* Tree
 * Accordion/Collapse
 * Outline
-* Menu bar
 ### General features
 * Cross-platform GUI server implementation
 * Cross-platform file reloading
@@ -90,10 +89,9 @@ it or trust it), or it will be included.
 * CPU text clipping (when generating text)
 * Better font support (different fonts and sizes)
 * Texture support
-* Better, uniform, style
-* Right-click context menus
-* Dockable windows
-* Tabs
+* Better, uniform, default style
+* Switching between different GUIs, e.g. main menu -> options menu, or between
+different categories in the options menu
 
 ## Additional features
 These are features that are currently undecided. Either due to them not being
@@ -112,6 +110,19 @@ important enough, or due to implementation difficulties
   for them. Message-passing is fine for when a button is pressed and so on, but
   a widget might need to source its data from outside the lua context. A simple,
   non-cumbersome way of getting data into and out of the widget is necessary.
+
+## 1.0+
+### Widgets
+* Color picker
+### Layouts
+* Floating window
+* Resizable linear
+* Menu bar
+* Tree
+### General features
+* Right-click context menus
+* Dockable windows
+* Tabs
 
 # License
 LUI is licensed under the MIT licence. LICENSE.txt has more information.
