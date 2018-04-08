@@ -104,7 +104,7 @@ namespace GUI
 
     struct Popup
     {
-        Widget* parent; // The widgets that opened the popup
+        int32_t parent; // The widgets that opened the popup
         CLOSE_ON closeOn; // Controls what closes the popup (clicks, mouse exiting it)
         int32_t hoveredWidget;
         int32_t downWidget;
@@ -131,9 +131,10 @@ namespace GUI
     static std::vector<Vertex> vertices;
     static std::vector<uint32_t> indicies;
 
-    static std::stack<int> defaultsStack;
+    static std::stack<int32_t> defaultsStack;
 
-    std::map<std::string, Element*> namedElements;
+    static std::map<std::string, int32_t> namedWidgets;
+    static std::map<std::string, Layout*> namedLayouts;
 
     // These are indicies into the widgets list.
     // A popup has its own hoveredWidget and downWidget; these are only used
@@ -501,9 +502,16 @@ namespace GUI
 
     Element* GetNamedElement(const char* name)
     {
-        auto iter = namedElements.find(name);
-        if(iter != namedElements.end())
-            return iter->second;
+        {
+            auto iter = namedWidgets.find(name);
+            if(iter != namedWidgets.end())
+                return &widgets[iter->second];
+        }
+        {
+            auto iter = namedLayouts.find(name);
+            if(iter != namedLayouts.end())
+                return iter->second;
+        }
 
         return nullptr;
     }
@@ -544,12 +552,12 @@ namespace GUI
     int32_t popupWidgetMask = 0;
     void OpenPopup(Element** popupElements, int32_t elementCount, CLOSE_ON closeOn)
     {
-        Widget* parent = nullptr;
+        int32_t parent;
         if(!popups.empty()) {
-                parent = &widgets[popups.back().hoveredWidget];
+                parent = popups.back().hoveredWidget;
         } else {
             if(hoveredWidget != -1)
-                parent = &widgets[hoveredWidget];
+                parent = hoveredWidget;
         }
 
         Popup popup = { parent, closeOn, -1, -1, popupWidgetMask };
@@ -635,7 +643,8 @@ namespace GUI
         widgets.resize(0);
         typeInferInfo.resize(0);
         popups.resize(0);
-        namedElements.clear();
+        namedWidgets.clear();
+        namedLayouts.clear();
         while(!defaultsStack.empty()) {
             if(defaultsStack.top() != -1) // I don't think -1 is a valid ref index?
                 luaL_unref(state, LUA_REGISTRYINDEX, defaultsStack.top());
@@ -665,8 +674,8 @@ namespace GUI
                 widget->mask = -1;
             }
 
-            if(popups.back().parent != nullptr) {
-                Widget* widget = popups.back().parent;
+            if(popups.back().parent != -1) {
+                Widget* widget = &widgets[popups.back().parent];
                 if(extensions[widget->extension].onPopupClosedFunction)
                     extensions[widget->extension].onPopupClosedFunction(widget, state, mouseDown);
             }
@@ -735,7 +744,7 @@ namespace GUI
 
     static std::vector<Element*> layoutsStack;
 
-    int ParseLayout(lua_State* state, Widget* elements)
+    int ParseLayout(lua_State* state, Widget* widgets)
     {
         int extensionIndex = GetExtension(state);
         if(extensionIndex == -1)
@@ -764,13 +773,11 @@ namespace GUI
             name = lua_tostring(state, -1);
             lua_pop(state, 1);
         }
-        Element* element = nullptr;
 
         int returnValue = 0;
         bool pop = false;
         if(extensions[extensionIndex].parseLayoutFunction) {
             Layout* newLayout = new Layout();
-            element = newLayout;
             newLayout->extension = extensionIndex;
             newLayout->data = nullptr;
             newLayout->parent = nullptr;
@@ -784,44 +791,54 @@ namespace GUI
             }
             layoutsStack.push_back(newLayout);
 
-            returnValue = extensions[extensionIndex].parseLayoutFunction(state, newLayout, elements, defaults);
+            returnValue = extensions[extensionIndex].parseLayoutFunction(state, newLayout, widgets, defaults);
 
             if(pop)
                 layoutsStack.pop_back();
+
+            if(!name.empty()) {
+                auto widgetIter = namedWidgets.find(name);
+                auto layoutIter = namedLayouts.find(name);
+                if(widgetIter == namedWidgets.end() && layoutIter == namedLayouts.end()) {
+                    namedLayouts[name] = newLayout;
+                } else {
+                    std::cerr << "Multiple elements named " << name << std::endl;
+                }
+            }
         } else {
-            element = elements;
-            elements->draw = true;
-            elements->update = false;
-            elements->modified = false;
-            elements->layer = 0;
-            elements->extension = extensionIndex;
-            elements->vertices = nullptr;
-            elements->data = nullptr;
-            elements->vertexCount = 0;
-            elements->parent = nullptr;
-            elements->mask = -1;
-            elements->clipRect = 0;
-            elements->offsetData = { 0, 0, 0 };
+            widgets->draw = true;
+            widgets->update = false;
+            widgets->modified = false;
+            widgets->layer = 0;
+            widgets->extension = extensionIndex;
+            widgets->vertices = nullptr;
+            widgets->data = nullptr;
+            widgets->vertexCount = 0;
+            widgets->parent = nullptr;
+            widgets->mask = -1;
+            widgets->clipRect = 0;
+            widgets->offsetData = { 0, 0, 0 };
 
             if(!layoutsStack.empty()) {
-                elements->parent = layoutsStack.back();
+                widgets->parent = layoutsStack.back();
             }
 
-            layoutsStack.push_back(elements);
+            layoutsStack.push_back(widgets);
 
-            returnValue = extensions[extensionIndex].parseWidgetFunction(state, elements, defaults);
+            returnValue = extensions[extensionIndex].parseWidgetFunction(state, widgets, defaults);
 
             layoutsStack.pop_back();
 
-            layoutsStack.back()->children.push_back(elements);
-        }
+            layoutsStack.back()->children.push_back(widgets);
 
-        if(!name.empty()) {
-            auto iter = namedElements.find(name);
-            if(iter == namedElements.end()) {
-                namedElements[name] = element;
-            } else {
-                std::cerr << "Multiple elements named " << name << std::endl;
+            if(!name.empty()) {
+                auto widgetIter = namedWidgets.find(name);
+                auto layoutIter = namedLayouts.find(name);
+                if(widgetIter == namedWidgets.end() && layoutIter == namedLayouts.end()) {
+                    namedWidgets[name] = (int32_t)(GUI::widgets.data() - widgets);
+                } else {
+                    std::cerr << "Multiple elements named " << name << std::endl;
+                }
             }
         }
 
@@ -1429,7 +1446,7 @@ namespace GUI
                         }
 
                         if(!found) {
-                            if(popup.parent->bounds.Contains(x, y)) {
+                            if(widgets[popup.parent].bounds.Contains(x, y)) {
                                 break;
                             } else {
                                 popupsToPop++;
