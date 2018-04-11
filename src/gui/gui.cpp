@@ -795,6 +795,7 @@ namespace GUI
             newLayout->extension = extensionIndex;
             newLayout->data = nullptr;
             newLayout->parent = nullptr;
+            newLayout->bounds = { 0.0f, 0.0f, 0.0f, 0.0f };
             if(!layoutsStack.empty()) {
                 layoutsStack.back()->children.push_back(newLayout);
                 pop = true;
@@ -832,6 +833,7 @@ namespace GUI
             widgets->mask = -1;
             widgets->clipRect = 0;
             widgets->offsetData = { 0, 0, 0 };
+            widgets->bounds = { 0.0f, 0.0f, 0.0f, 0.0f };
 
             if(!layoutsStack.empty()) {
                 widgets->parent = layoutsStack.back();
