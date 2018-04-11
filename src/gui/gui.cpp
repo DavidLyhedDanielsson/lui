@@ -129,6 +129,7 @@ namespace GUI
     // All widgets in the entire GUI
     static std::vector<Widget> widgets;
     static Layout* rootLayout;
+    static std::vector<Layout*> preparsedLayouts;
 
     static std::vector<DrawList> drawLists;
     // All vertices and indicies, updates as needed
@@ -585,7 +586,7 @@ namespace GUI
 
     void DestroyLayout(Layout* layout, lua_State* state)
     {
-        if(extensions[layout->extension].destroyFunction) {
+        if(layout->data && extensions[layout->extension].destroyFunction) {
             extensions[layout->extension].destroyFunction(layout->data, state);
         }
 
@@ -627,6 +628,10 @@ namespace GUI
         }
 
         DestroyLayouts(rootLayout, state);
+        for(size_t i = 0; i < preparsedLayouts.size(); ++i) {
+            DestroyLayouts(preparsedLayouts[i], state);
+        }
+        preparsedLayouts.resize(0);
         for(size_t i = 0; i < widgets.size(); ++i)
             DestroyWidget(&widgets[i], state);
         
@@ -950,13 +955,37 @@ namespace GUI
             if(!lua_isnil(state, -1)) {
                 countTime.Start();
                 int widgetCount = CountElements(state);
-                countTime.Stop();
 
-                widgets.resize(widgetCount);
+                lua_getglobal(state, "preparse_layouts");
+                int offset = 0;
+                if(!lua_isnil(state, -1)) {
+                    lua_pushnil(state);
+                    while(lua_next(state, -2)) {
+                        widgetCount += CountElements(state);
+                        lua_pop(state, 1);
+                    }
+
+                    widgets.resize(widgetCount);
+
+                    lua_pushnil(state);
+                    while(lua_next(state, -2)) {
+                        lua_pushstring(state, "name");
+                        lua_pushstring(state, lua_tostring(state, -3));
+                        lua_settable(state, -3);
+                        offset += ParseLayout(state, &widgets[offset]);
+                        preparsedLayouts.push_back((Layout*)layoutsStack.back());
+                        layoutsStack.pop_back();
+                        lua_pop(state, 1);
+                    }
+                } else {
+                    widgets.resize(widgetCount);
+                }
+                lua_pop(state, 1);
+                countTime.Stop();
 
                 parseTime.Start();
                 // Change this at some point
-                widgets.resize(ParseLayout(state, widgets.data()));
+                ParseLayout(state, widgets.data() + offset);
                 lua_pop(state, 1);
                 parseTime.Stop();
 
