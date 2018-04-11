@@ -19,6 +19,10 @@
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 
+#ifdef VALGRIND
+#include <valgrind/valgrind.h>
+#endif
+
 #include <timer.h>
 
 // TODO: Keep everything the same after reloading
@@ -626,6 +630,11 @@ namespace GUI
         for(size_t i = 0; i < widgets.size(); ++i)
             DestroyWidget(&widgets[i], state);
         
+#ifdef VALGRIND
+        // In all likelyhood, if extensions aren't kept, we're closing the
+        // program, so just don't if we need to debug them
+        if(!RUNNING_ON_VALGRIND && !keepExtensions)
+#endif
         for(size_t i = 0; i < extensions.size(); ++i)
             dlclose(extensions[i].libraryHandle);
 

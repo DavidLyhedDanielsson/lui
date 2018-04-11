@@ -15,6 +15,13 @@ if(BUILD_SERVER)
     # add_definitions(-DDONT_FORK)
 endif()
 
+# This is just for convenience, and is only used to not close dynamically loaded
+# libraries when ran under valgrind.
+# This could be made more robust, but is fine for now
+if(EXISTS "/usr/include/valgrind/valgrind.h")
+    add_definitions(-DVALGRIND)
+endif()
+
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
