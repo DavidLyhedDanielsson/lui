@@ -636,9 +636,9 @@ namespace GUI
             DestroyWidget(&widgets[i], state);
         
 #ifdef VALGRIND
-        // In all likelyhood, if extensions aren't kept, we're closing the
-        // program, so just don't if we need to debug them
-        if(!RUNNING_ON_VALGRIND && !keepExtensions)
+        // While running on valgrind it is assumed only testing is performed,
+        // and as such there shouldn't be any need to reload the libraries
+        if(!RUNNING_ON_VALGRIND) {
 #endif
         for(size_t i = 0; i < extensions.size(); ++i)
             dlclose(extensions[i].libraryHandle);
@@ -651,6 +651,10 @@ namespace GUI
         } else {
             extensions.clear();
         }
+
+#ifdef VALGRIND
+        }
+#endif
 
         vertices.resize(0);
         drawLists.resize(0);
