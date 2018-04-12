@@ -966,9 +966,11 @@ namespace GUI
                         widgetCount += CountElements(state);
                         lua_pop(state, 1);
                     }
+                    countTime.Stop();
 
                     widgets.resize(widgetCount);
 
+                    parseTime.Start();
                     lua_pushnil(state);
                     while(lua_next(state, -2)) {
                         lua_pushstring(state, "name");
@@ -979,13 +981,16 @@ namespace GUI
                         layoutsStack.pop_back();
                         lua_pop(state, 1);
                     }
+
+                    for(int i = 0; i < offset; ++i)
+                        widgets[i].draw = false;
                 } else {
+                    countTime.Stop();
                     widgets.resize(widgetCount);
+                    parseTime.Start();
                 }
                 lua_pop(state, 1);
-                countTime.Stop();
 
-                parseTime.Start();
                 // Change this at some point
                 ParseLayout(state, widgets.data() + offset);
                 lua_pop(state, 1);
