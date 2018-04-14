@@ -187,23 +187,26 @@ extern "C"
         float paddingLeft = data.paddingLeft;
         float paddingRight = data.paddingRight;
 
+        float layoutHeight = layout->bounds.height - std::max(0.0f, paddingTop) - std::max(0.0f, paddingBottom) - (data.direction == VERTICAL ? (data.childCount - 1) * std::max(0.0f, paddingElement) : 0.0f);
+        float layoutWidth = layout->bounds.width - std::max(0.0f, paddingLeft) - std::max(0.0f, paddingRight) - (data.direction == HORIZONTAL ? (data.childCount - 1) * std::max(0.0f, paddingElement) : 0.0f);
+
         for(int32_t i = 0; i < data.childCount; ++i) {
             float remainingSize = 0.0f;
             if(data.direction == VERTICAL) {
-                remainingSize = layout->bounds.height;
+                remainingSize = layoutHeight;
                 for(int32_t i = 0; i < data.childCount; ++i) {
                     if(data.childSizes[i].height != -1)
                         remainingSize -= data.childSizes[i].height;
                     if(data.childSizes[i].width == -1)
-                        data.childSizes[i].width = layout->bounds.width;
+                        data.childSizes[i].width = layoutWidth;
                 }
             } else {
-                remainingSize = layout->bounds.width;
+                remainingSize = layoutWidth;
                 for(int32_t i = 0; i < data.childCount; ++i) {
                     if(data.childSizes[i].width != -1)
                         remainingSize -= data.childSizes[i].width;
                     if(data.childSizes[i].height == -1)
-                        data.childSizes[i].height = layout->bounds.height;
+                        data.childSizes[i].height = layoutHeight;
                 }
             }
 
