@@ -1,6 +1,7 @@
 #ifndef PARSE_HELPERS_H__
 #define PARSE_HELPERS_H__
 
+#include <cmath>
 #include <lua5.1/lua.hpp>
 #include "guielement.h"
 
@@ -111,12 +112,12 @@ namespace GUI
             , HORIZONTAL
         };
 
-        const static auto MIN_THUMB_SIZE = 12.0f;
+        const static int MIN_THUMB_SIZE = 25.0f;
 
         void Parse(lua_State* state
+                    , float* currentValue
                     , float* minValue
                     , float* maxValue
-                    , float* currentValue
                     , float* valueIncrement
                     , DIRECTION* direction
                     , Color* thumbColor
@@ -130,10 +131,14 @@ namespace GUI
             *currentValue = GetOptionalNumber(state, "value", 0.0f, defaults);
             *minValue = GetOptionalNumber(state, "value_min", 0.0f, defaults);
             *maxValue = GetOptionalNumber(state, "value_max", 1.0f, defaults);
-            // value moves in increments of this value, also determinates thumb size
             *valueIncrement = GetOptionalNumber(state, "value_increment", 0.01f, defaults);
             *direction = (DIRECTION)GetOptionalListIndex(state, "direction", possibleValues, 2, 1, defaults);
             *thumbColor = GetOptionalColor(state, "thumb_color", COLOR_PRIMARY, defaults);
+        }
+
+        inline float Round(float value, float multiple)
+        {
+            return std::round(value / multiple) * multiple;
         }
 
         void BuildHorizontal(GUI::Widget* widget
@@ -142,13 +147,13 @@ namespace GUI
                                 , const float minValue
                                 , const float maxValue
                                 , const float valueIncrement
-                                , float* thumbSize
                                 , float* posX
+                                , float* thumbSize
                                 , Color color)
         {
-            const float totalIncrements = (maxValue - minValue) / valueIncrement;
-            *thumbSize = std::max(MIN_THUMB_SIZE, bounds.width / totalIncrements);
-            *posX = bounds.x + (currentValue / (maxValue - minValue) * (bounds.width - *thumbSize));
+            *thumbSize = (float)std::max(MIN_THUMB_SIZE, (int)(bounds.width / ((maxValue - minValue) / valueIncrement + 1)));
+            float value = Round(currentValue, valueIncrement);
+            *posX = bounds.x + (value / (maxValue - minValue) * (bounds.width - *thumbSize));
 
             CreateColoredQuad(widget
                                 , *posX
@@ -167,13 +172,13 @@ namespace GUI
                             , const float minValue
                             , const float maxValue
                             , const float valueIncrement
-                            , float* thumbSize
                             , float* posY
+                            , float* thumbSize
                             , Color color)
         {
-            const float totalIncrements = (maxValue - minValue) / valueIncrement;
-            *thumbSize = std::max(MIN_THUMB_SIZE, bounds.height / totalIncrements);
-            *posY = bounds.y + (currentValue / (maxValue - minValue) * (bounds.height - *thumbSize));
+            *thumbSize = (float)std::min(MIN_THUMB_SIZE, (int)((valueIncrement / (maxValue - minValue) + 1) * bounds.height));
+            float value = Round(currentValue, valueIncrement);
+            *posY = bounds.y + (value / (maxValue - minValue) * (bounds.height - *thumbSize));
 
             CreateColoredQuad(widget
                                 , bounds.x
@@ -188,45 +193,49 @@ namespace GUI
 
         void UpdateHorizontal(int32_t clickPos
                                 , const Rect& bounds
-                                , const float thumbSize
                                 , const float minValue
                                 , const float maxValue
+                                , const float valueIncrement
+                                , const float thumbSize
                                 , float* value
                                 , float* position)
         {
             clickPos = clickPos - bounds.x - thumbSize * 0.5f;
             float size = bounds.width - thumbSize;
-            float percent = clickPos / size;
+            float percent = clickPos / size; // How far down of the height the user clicked
             percent = std::max(percent, 0.0f);
             percent = std::min(percent, 1.0f);
 
-            *value = percent * (maxValue - minValue);
+            *value = Round(percent * (maxValue - minValue), valueIncrement);
+            percent = *value / (maxValue - minValue); // What the current value is, in percent
             *position = bounds.x + percent * size;
         }
 
         void UpdateVertical(int32_t clickPos
                                 , const Rect& bounds
-                                , const float thumbSize
                                 , const float minValue
                                 , const float maxValue
+                                , const float valueIncrement
+                                , const float thumbSize
                                 , float* value
                                 , float* position)
         {
             clickPos = clickPos - bounds.y - thumbSize * 0.5f;
             float size = bounds.height - thumbSize;
-            float percent = clickPos / size;
+            float percent = clickPos / size; // How far down of the height the user clicked
             percent = std::max(percent, 0.0f);
             percent = std::min(percent, 1.0f);
 
-            *value = percent * (maxValue - minValue);
+            *value = Round(percent * (maxValue - minValue), valueIncrement);
+            percent = *value / (maxValue - minValue); // What the current value is, in percent
             *position = bounds.y + percent * size;
         }
 
         void UpdateHorizontalValue(float value
                                     , const Rect& bounds
-                                    , const float thumbSize
                                     , const float minValue
                                     , const float maxValue
+                                    , const float thumbSize
                                     , float* position)
         {
             float percent = value / (maxValue - minValue);
@@ -239,9 +248,9 @@ namespace GUI
 
         void UpdateVerticalValue(float value
                                     , const Rect& bounds
-                                    , const float thumbSize
                                     , const float minValue
                                     , const float maxValue
+                                    , const float thumbSize
                                     , float* position)
         {
             float percent = value / (maxValue - minValue);

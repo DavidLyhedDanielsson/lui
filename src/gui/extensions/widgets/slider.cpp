@@ -33,7 +33,7 @@ struct Data
     float currentValue;
     float minValue;
     float maxValue;
-    float incrementValue;
+    float valueIncrement;
     // Graphical units
     float thumbSize;
     float pos;
@@ -61,7 +61,14 @@ extern "C"
         data.pos = 0.0f;
 
         BackgroundColor::Parse(state, &data.backgroundColor, defaults);
-        Scrollbar::Parse(state, &data.minValue, &data.maxValue, &data.currentValue, &data.incrementValue, &data.direction, &data.thumbColor, defaults);
+        Scrollbar::Parse(state
+                            , &data.currentValue
+                            , &data.minValue
+                            , &data.maxValue
+                            , &data.valueIncrement
+                            , &data.direction
+                            , &data.thumbColor
+                            , defaults);
 
         QUAD_ALLOC(widget, 2);
         
@@ -91,9 +98,9 @@ extern "C"
                                         , data->currentValue
                                         , data->minValue
                                         , data->maxValue
-                                        , data->incrementValue
-                                        , &data->thumbSize
+                                        , data->valueIncrement
                                         , &data->pos
+                                        , &data->thumbSize
                                         , data->thumbColor);
         } else {
             Scrollbar::BuildVertical(widget
@@ -101,9 +108,9 @@ extern "C"
                                         , data->currentValue
                                         , data->minValue
                                         , data->maxValue
-                                        , data->incrementValue
-                                        , &data->thumbSize
+                                        , data->valueIncrement
                                         , &data->pos
+                                        , &data->thumbSize
                                         , data->thumbColor);
         }
     }
@@ -129,9 +136,10 @@ extern "C"
         if(data->direction == Scrollbar::HORIZONTAL) {
             Scrollbar::UpdateHorizontal(x
                                         , widget->bounds
-                                        , data->thumbSize
                                         , data->minValue
                                         , data->maxValue
+                                        , data->valueIncrement
+                                        , data->thumbSize
                                         , &data->currentValue
                                         , &data->pos);
 
@@ -142,9 +150,10 @@ extern "C"
         } else {
             Scrollbar::UpdateVertical(y
                                         , widget->bounds
-                                        , data->thumbSize
                                         , data->minValue
                                         , data->maxValue
+                                        , data->valueIncrement
+                                        , data->thumbSize
                                         , &data->currentValue
                                         , &data->pos);
 
@@ -203,9 +212,9 @@ extern "C"
             if(data->direction == Scrollbar::HORIZONTAL) {
                 Scrollbar::UpdateHorizontalValue(data->currentValue
                                                     , widget->bounds
-                                                    , data->thumbSize
                                                     , data->minValue
                                                     , data->maxValue
+                                                    , data->thumbSize
                                                     , &data->pos);
 
                 widget->vertices[4].x = data->pos;
@@ -215,9 +224,9 @@ extern "C"
             } else {
                 Scrollbar::UpdateVerticalValue(data->currentValue
                                                 , widget->bounds
-                                                , data->thumbSize
                                                 , data->minValue
                                                 , data->maxValue
+                                                , data->thumbSize
                                                 , &data->pos);
 
                 widget->vertices[4].y = data->pos;
