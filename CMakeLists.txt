@@ -123,3 +123,4 @@ add_library(dropdown SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/dropdown.c
 add_library(slider SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/slider.cpp)
 add_library(outline SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/outline.cpp)
 add_library(checkbox SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/checkbox.cpp)
+add_library(placeholderswap SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/placeholderswap.cpp)
