@@ -144,7 +144,7 @@ extern "C"
         for(int32_t i = 0; i < data.childCount; ++i) {
             lua_rawgeti(state, -1, i + 1);
             int retVal = functions->parse(state, &elements[offset]);
-            if(retVal == 0) {
+            if(retVal == -1) { // TODO: Error handling, this was changed from 0
                 data.childCount--;
                 continue;
             }

@@ -113,6 +113,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
 add_library(linear SHARED ${EXTENSION_SOURCE_SHARED} ${LAYOUTS_DIR}/linear.cpp)
 add_library(floating SHARED ${EXTENSION_SOURCE_SHARED} ${LAYOUTS_DIR}/floating.cpp)
 add_library(scroll SHARED ${EXTENSION_SOURCE_SHARED} ${LAYOUTS_DIR}/scroll.cpp)
+add_library(placeholder SHARED ${EXTENSION_SOURCE_SHARED} ${LAYOUTS_DIR}/placeholder.cpp)
 # Widgets
 set(WIDGETS_DIR src/gui/extensions/widgets)
 add_library(color SHARED ${EXTENSION_SOURCE_SHARED} ${WIDGETS_DIR}/color.cpp)
