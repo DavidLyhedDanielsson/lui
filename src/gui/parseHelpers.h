@@ -153,7 +153,7 @@ namespace GUI
         {
             *thumbSize = (float)std::max(MIN_THUMB_SIZE, (int)(bounds.width / ((maxValue - minValue) / valueIncrement + 1)));
             float value = Round(currentValue, valueIncrement);
-            *posX = bounds.x + (value / (maxValue - minValue) * (bounds.width - *thumbSize));
+            *posX = bounds.x + ((value - minValue) / (maxValue - minValue) * (bounds.width - *thumbSize));
 
             CreateColoredQuad(widget
                                 , *posX
@@ -178,7 +178,7 @@ namespace GUI
         {
             *thumbSize = (float)std::min(MIN_THUMB_SIZE, (int)((valueIncrement / (maxValue - minValue) + 1) * bounds.height));
             float value = Round(currentValue, valueIncrement);
-            *posY = bounds.y + (value / (maxValue - minValue) * (bounds.height - *thumbSize));
+            *posY = bounds.y + ((value - minValue) / (maxValue - minValue) * (bounds.height - *thumbSize));
 
             CreateColoredQuad(widget
                                 , bounds.x
@@ -206,8 +206,8 @@ namespace GUI
             percent = std::max(percent, 0.0f);
             percent = std::min(percent, 1.0f);
 
-            *value = Round(percent * (maxValue - minValue), valueIncrement);
-            percent = *value / (maxValue - minValue); // What the current value is, in percent
+            *value = Round(percent * (maxValue - minValue) + minValue, valueIncrement);
+            percent = (*value - minValue) / (maxValue - minValue); // What the current value is, in percent
             *position = bounds.x + percent * size;
         }
 
@@ -226,8 +226,8 @@ namespace GUI
             percent = std::max(percent, 0.0f);
             percent = std::min(percent, 1.0f);
 
-            *value = Round(percent * (maxValue - minValue), valueIncrement);
-            percent = *value / (maxValue - minValue); // What the current value is, in percent
+            *value = Round(percent * (maxValue - minValue) + minValue, valueIncrement);
+            percent = (*value - minValue) / (maxValue - minValue); // What the current value is, in percent
             *position = bounds.y + percent * size;
         }
 
